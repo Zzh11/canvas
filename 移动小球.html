@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            margin:0;
+            padding: 0;
+        }
+        canvas{
+            border-top:1px solid red;
+            border-left:1px solid orange;
+            border-right:1px solid lime;
+            border-bottom:1px solid blue;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas width="500" height="300" id="canvas"></canvas>
+<br/>
+    <button onclick="start()">开始</button>
+    <button onclick="pause()">暂停</button>
+
+<script>
+
+    var canvas=document.getElementById("canvas");
+    var context = canvas.getContext('2d');
+    var timer=null;
+    var flag=false;
+    var color="red";
+    function start(){
+        if( !flag ){
+              timer=setInterval(function(){
+                updateBalls();
+                renderBalls();
+                    },20);
+            flag=true;
+        }
+    }
+    var W=500,H=300;
+    var NUM = 10;
+    //存储小球
+    var balls = [];
+    function getBalls(){
+        if(canvas.getContext){
+            for(var i = 0; i < NUM; i++){
+
+                var R = Math.floor(Math.random()*5+5);
+                var X = Math.floor(Math.random()*(W-R) + R);
+                var Y = Math.floor(Math.random()*(H-R) + R);
+                var Ball={
+                    x:X,
+                    y:Y,
+                    r:R,
+                    XSpeed:Math.floor(Math.random()*6+2),
+                    YSpeed:Math.floor(Math.random()*6+2),
+
+                 };
+                balls.push(Ball);
+            }
+        }
+    }
+
+    //小球运动轨迹
+    function updateBalls(){
+        for(var i = 0; i < balls.length; i++){
+            balls[i].x += balls[i].XSpeed;
+            balls[i].y += balls[i].YSpeed;
+            bumpTest(balls[i]);
+
+                for(var j=0;j<balls.length;j++){
+                    if(i!=j){
+                        console.log(j);
+                        var l=(balls[i].x-balls[j].x)*(balls[i].x-balls[j].x)+(balls[i].y-balls[j].y)*(balls[i].y-balls[j].y);
+                        if(l=(balls[i].r+balls[j].r)*(balls[i].r+balls[j].r)){
+                            balls[i].XSpeed = -balls[i].XSpeed;
+                            balls[i].YSpeed = -balls[i].YSpeed;
+                            balls[j].XSpeed = -balls[j].XSpeed;
+                            balls[j].YSpeed = -balls[j].YSpeed;
+                        }
+                    }
+                }
+
+        }
+    }
+
+    //碰撞
+    function bumpTest(ele){
+        //左边框
+        if(ele.x -ele.r<= 0){
+          color="orange";
+            ele.XSpeed = -ele.XSpeed;
+        }
+        //右边框
+        if(ele.x >= W - ele.r){
+          color="lime";
+            ele.XSpeed = -ele.XSpeed;
+        }
+        //上边框
+        if(ele.y -ele.r<= 0){
+           color="red";
+            ele.YSpeed = -ele.YSpeed;
+        }
+        //下边框
+        if(ele.y >= H - ele.r){
+           color="blue";
+            ele.YSpeed = -ele.YSpeed;
+        }
+
+
+    }
+    function renderBalls(){
+        //重置画布高度，达到清空画布的效果
+        canvas.height = H;
+        if(canvas.getContext){
+            for(var i = 0; i < balls.length; i++){
+                context.beginPath();
+                context.arc(balls[i].x,balls[i].y,balls[i].r,0,2*Math.PI);
+                context.fillStyle =color;
+                context.closePath();
+                context.fill();
+            }
+        }
+
+    }
+
+    getBalls();
+    function pause(){
+        clearInterval(timer);
+        flag=false;
+    }
+</script>
+
+</body>
+</html>
